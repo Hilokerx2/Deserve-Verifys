@@ -5,8 +5,10 @@ from discord import app_commands
 
 from myserver import server_on
 
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
-
+# ตั้งค่า Intents
+intents = discord.Intents.default()
+intents.messages = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
 async def on_ready():
@@ -15,13 +17,16 @@ async def on_ready():
 # คำสั่ง chatbot
 @bot.event
 async def on_message(message):
-    mes = message.content # ดึงข้อความที่ถูกส่งมา
-    if mes == 'hello':
-        await message.channel.send("Hello It's me") # ส่งกลับไปที่ห้องนั่น
+    if message.author == bot.user:
+        return  # ไม่ตอบกลับข้อความของบอทตัวเอง
 
+    if message.content.lower() == 'hello':
+        await message.channel.send("Hello It's me")
+
+    await bot.process_commands(message)  # ตรวจสอบคำสั่งอื่น ๆ
 
 # รายการชื่อที่กำหนดไว้
-allowed_names = ["ชื่อ1", "ชื่อ2", "ชื่อ3"]  # เปลี่ยนเป็นชื่อที่ต้องการ
+allowed_names = ["Shiro", "Marie"]  # เปลี่ยนเป็นชื่อที่ต้องการ
 registered_names = {}
 
 @bot.command()
@@ -44,7 +49,5 @@ async def register(ctx, name: str):
     else:
         await ctx.send(f'ชื่อ "{name}" ไม่ถูกต้อง! กรุณาใช้ชื่อที่กำหนดไว้.')
 
-
 server_on()
-
 bot.run(os.getenv('TOKEN'))
